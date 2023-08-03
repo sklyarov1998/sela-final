@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Phone Book</title>
+  <!-- Load the required CSS and JS files for DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+</head>
+<body>
+
+  <h1>My Contacts</h1>
+
+  <!-- Modal for adding a new record -->
+  <div id="addModal" style="display: none;">
+    <form id="addForm">
+      <label for="firstName">First Name:</label>
+      <input type="text" id="firstName" name="firstName" required><br>
+      <label for="lastName">Last Name:</label>
+      <input type="text" id="lastName" name="lastName" required><br>
+      <label for="description">Description:</label>
+      <input type="text" id="description" name="description" required><br>
+      <label for="phone">Phone:</label>
+      <input type="text" id="phone" name="phone" required><br>
+      <button type="submit">Add</button>
+    </form>
+  </div>
+
+  <!-- Modal for editing a record -->
+  <div id="editModal" style="display: none;">
+    <form id="editForm">
+      <label for="editFirstName">First Name:</label>
+      <input type="text" id="editFirstName" name="editFirstName" required><br>
+      <label for="editLastName">Last Name:</label>
+      <input type="text" id="editLastName" name="editLastName" required><br>
+      <label for="editDescription">Description:</label>
+      <input type="text" id="editDescription" name="editDescription" required><br>
+      <label for="editPhone">Phone:</label>
+      <input type="text" id="editPhone" name="editPhone" required><br>
+      <button type="submit">Save</button>
+    </form>
+  </div>
+
+  <table id="myTable" class="display">
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Description</th>
+        <th>Phone</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be populated dynamically using REST API -->
+    </tbody>
+  </table>
+
+  <script>
+    $(document).ready(function() {
+      // Initialize DataTable with AJAX data source
+      var dataTable = $('#myTable').DataTable({
+        "ajax": {
+          "url": "http://127.0.0.1:5000/contacts", // Replace with your actual REST API endpoint
+          "dataSrc": "" // Use an empty string if the data is an array directly, or provide the appropriate data property name if it's nested
+        },
+        "columns": [
+          { "data": "first_name" }, // Replace "first_name" with the property name for the first name field in your API response
+          { "data": "last_name" }, // Replace "last_name" with the property name for the last name field in your API response
+          { "data": "description" }, // Replace "description" with the property name for the description field in your API response
+          { "data": "phone" } // Replace "phone" with the property name for the phone field in your API response
+        ],
+        dom: 'Bfrtip',
+        buttons: [
+          {
+            text: 'Add',
+            action: function () {
+              // Show the add modal when the "Add" button is clicked
+              $('#addModal').show();
+            }
+          },
+          {
+            text: 'Edit',
+            action: function () {
+              // Get the selected row data
+              var selectedData = dataTable.row({ id : selectedRow.id }).data();
+              if (selectedData) {
+                // Populate the edit form with the selected row data
+                $('#editFirstName').val(selectedData.first_name);
+                $('#editLastName').val(selectedData.last_name);
+                $('#editDescription').val(selectedData.description);
+                $('#editPhone').val(selectedData.phone);
+                // Show the edit modal
+                $('#editModal').show();
+              } else {
+                alert('Please select a row to edit.');
+              }
+            }
+          },
+          {
+            text: 'Delete',
+            action: function () {
+              // Add your custom logic here to get the selected row data and perform deletion
+              // For example:
+              //var selectedData = dataTable.row({ selected: true }).data();
+              if (selectedRow) {
+                var contactId = selectedRow.id; // Replace "id" with the actual property name for the unique identifier in your API response
+                $.ajax({
+                  url: 'http://127.0.0.1:5000/contacts/' + contactId,
+                  type: 'DELETE',
+                  success: function (response) {
+                    alert('Successfully deleted record with ID: ' + contactId);
+                    dataTable.ajax.reload(); // Refresh the DataTable after deletion
+                  },
+                  error: function (error) {
+                    alert('Error deleting record with ID: ' + contactId);
+                  }
+                });
+              } else {
+                alert('Please select a row to delete.');
+              }
+            }
+          }
+        ]
+      });
+      
+      $('#editForm').on('submit', function (event) {
+        event.preventDefault();
+        // Extract the form data
+        var editData = {
+          first_name: $('#editFirstName').val(),
+          last_name: $('#editLastName').val(),
+          description: $('#editDescription').val(),
+          phone: $('#editPhone').val()
+        };
+        if (selectedRow) {
+          var contactId = selectedRow.id;
+            // Get the ID of the selected row
+ 
+            var contactId = selectedRow.id; // Replace "id" with the actual property name for the unique identifier in your API response
+            // Make the PUT request to the REST API
+            $.ajax({
+                url: 'http://127.0.0.1:5000/contacts/' + contactId,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(editData),
+                success: function (response) {
+                alert('Successfully edited record with ID: ' + contactId);
+                $('#editModal').hide();
+                dataTable.ajax.reload(); // Refresh the DataTable after editing the record
+                },
+                error: function (error) {
+                alert('Error editing record with ID: ' + contactId);
+                }
+          });
+        }
+        else alert('Error select contact to edit');
+      });
+
+      $('#myTable tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+          $(this).removeClass('selected');
+          selectedRow = null;
+        } else {
+          dataTable.$('tr.selected').removeClass('selected');
+          $(this).addClass('selected');
+          var rowIndex = dataTable.row(this).index();
+          selectedRow = dataTable.row(rowIndex).data();
+        }
+      });
+
+      // Handle form submission for adding a new record
+      $('#addForm').on('submit', function (event) {
+        event.preventDefault();
+
+        // Extract
+
+
+        // Extract the form data
+        var formData = {
+          first_name: $('#firstName').val(),
+          last_name: $('#lastName').val(),
+          description: $('#description').val(),
+          phone: $('#phone').val()
+        };
+
+        // Make the POST request to the REST API
+        $.ajax({
+          url: 'http://127.0.0.1:5000/contacts',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(formData),
+          success: function (response) {
+            alert('Successfully added a new record.');
+            $('#addModal').hide();
+            dataTable.ajax.reload(); // Refresh the DataTable after adding the record
+          },
+          error: function (error) {
+            alert('Error adding a new record.');
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
