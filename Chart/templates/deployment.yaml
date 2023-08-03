@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medibot-deployment
+  labels:
+    app: medibot
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: medibot
+  template:
+    metadata:
+      labels:
+        app: medibot
+    spec:
+      containers:
+        - name: medibot-app
+          image: dasklyarov/myapp:55
+          ports:
+            - containerPort: 9000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medibot-bs
+  labels:
+    app: medibot
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 9999
+      targetPort: 9000
+  selector:
+    app: medibot
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: myapp-lb
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - protocol: TCP
+#       port: 1000
+#       targetPort: 9000
+#   selector:
+#     app: myapp
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: app-deployment
+#   labels:
+#     app: myapp
+# spec:
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       app: myapp
+#   template:
+#     metadata:
+#       labels:
+#         app: myapp
+#     spec:
+#       containers:
+#         - name: flask-server
+#           image: dasklyarov/myapp:55
+#           ports:
+#             - containerPort: 9000

@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medibot-ingress
+  labels:
+    name: cicd-ingress
+    type: ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: mycicd.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/medibot"
+            backend:
+              service:
+                name: medibot-bs
+                port:
+                  number: 9999
+          - pathType: Prefix
+            path: "/argo"
+            backend:
+              service:
+                name: fp-release-argocd-server
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/prometheus"
+            backend:
+              service:
+                name: fp-release-prometheus-server
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/jenkins"
+            backend:
+              service:
+                name: fp-release-jenkins
+                port:
+                  number: 8080
