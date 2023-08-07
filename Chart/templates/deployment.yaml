@@ -1,72 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: medibot-deployment
+  name: phonebook-deployment
   labels:
-    app: medibot
+    app: phonebook
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: medibot
+      app: phonebook
   template:
     metadata:
       labels:
-        app: medibot
+        app: phonebook
+
     spec:
       containers:
-        - name: medibot-app
-          image: dasklyarov/myapp:55
+        - name: phonebook-app
+          image: shaharnadler/phonebook:0.50
           ports:
-            - containerPort: 9000
+            - containerPort: 5000
+
+          env:
+            - name: GCP_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: db-password
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: medibot-bs
-  labels:
-    app: medibot
+  name: phonebook-lb
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - protocol: TCP
-      port: 9999
-      targetPort: 9000
+      port: 1000
+      targetPort: 5000
   selector:
-    app: medibot
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: myapp-lb
-# spec:
-#   type: LoadBalancer
-#   ports:
-#     - protocol: TCP
-#       port: 1000
-#       targetPort: 9000
-#   selector:
-#     app: myapp
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: app-deployment
-#   labels:
-#     app: myapp
-# spec:
-#   replicas: 3
-#   selector:
-#     matchLabels:
-#       app: myapp
-#   template:
-#     metadata:
-#       labels:
-#         app: myapp
-#     spec:
-#       containers:
-#         - name: flask-server
-#           image: dasklyarov/myapp:55
-#           ports:
-#             - containerPort: 9000
+    app: phonebook

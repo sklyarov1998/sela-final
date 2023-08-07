@@ -23,18 +23,19 @@ version: 0.1.0
 # It is recommended to use it with quotes.
 appVersion: "1.16.0"
 
-# dependencies:
-#   - name: jenkins
-#     version: 4.4.1
-#     repository: https://charts.jenkins.io
+dependencies:
 
-#   - name: prometheus    
-#     version: 23.1.0
-#     repository: https://prometheus-community.github.io/helm-charts
+  - name: prometheus    
+    version: 23.1.0
+    repository: https://prometheus-community.github.io/helm-charts
 
-#   - name: argo-cd
-#     version: 5.41.1
-#     repository:  https://argoproj.github.io/argo-helm
+  - name: jenkins
+    version: 4.4.1
+    repository: https://charts.jenkins.io
+
+  - name: argo-cd
+    version: 5.41.1
+    repository:  https://argoproj.github.io/argo-helm
 
 #   - name: mysql
 #     version: 9.10.8

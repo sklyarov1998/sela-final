@@ -1,0 +1,5 @@
+*.tgz
+*.lock
+/templates/db-secret.yaml
+/charts
+*.DS_Store
