@@ -1,0 +1,76 @@
+pipeline {
+    environment {
+        DOCKER_HUB_CREDENTIALS = 'phonebook_dockerhub_credentials'
+        DOCKER_IMAGE_NAME = 'shaharnadler/phonebook'
+        CHART_NAME="phonebook-chart"
+    }
+
+    agent {
+        kubernetes {
+            label 'promo-app'
+            idleMinutes 5
+            yamlFile 'agent.yaml'
+            defaultContainer 'ez-docker-helm-build'
+        }
+    }
+
+    stages {
+        stage('Set Tag') {
+            steps {
+                script {
+                    def tag
+                    if (env.BRANCH_NAME == 'main') {
+                        tag = "1.${env.BUILD_ID}"
+                    } else {
+                        tag = "0.${env.BUILD_ID}"
+                    }
+                    echo "Tag: ${tag}"
+                    echo "${env.GIT_COMMIT}"
+                    env.TAG = tag
+                    
+                }
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                script {
+                    docker.withRegistry('', DOCKER_HUB_CREDENTIALS) {
+                        def customImage = docker.build("${DOCKER_IMAGE_NAME}:${env.TAG}", '.')
+                    }
+                }
+            }
+        }
+
+        stage('Push Image to Docker Hub') {
+            
+            steps {
+                script {
+                    docker.withRegistry('', DOCKER_HUB_CREDENTIALS) {
+                        def customImage = docker.image("${DOCKER_IMAGE_NAME}:${env.TAG}")
+                       customImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Build Helm Chart') {
+            steps {
+                sh "helm lint ${CHART_NAME}"
+                sh "helm package ${CHART_NAME} --version ${env.TAG}"
+            }
+        }
+
+        stage('Push HELM chart') {
+            
+            steps {
+                script{
+                        docker.withRegistry('', DOCKER_HUB_CREDENTIALS) {
+                            sh "helm push ${CHART_NAME}-${env.TAG}.tgz oci://registry-1.docker.io/shaharnadler"
+                        }
+                }
+                
+            }
+        }
+    }
+}

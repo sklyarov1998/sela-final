@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.app_name }}-app
-          image: shaharnadler/{{ .Values.app_name }}:0.50
+          image: shaharnadler/{{ .Values.app_name }}:latest
           ports:
             - containerPort: 5000
           env:

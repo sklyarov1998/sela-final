@@ -1,5 +1,5 @@
 apiVersion: v2
-name: fp-chart
+name: phonebook-chart
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -23,17 +23,17 @@ version: 0.1.0
 # It is recommended to use it with quotes.
 appVersion: "1.16.0"
 
-dependencies:
+# dependencies:
 
-  - name: prometheus    
-    version: 23.1.0
-    repository: https://prometheus-community.github.io/helm-charts
+#   - name: prometheus    
+#     version: 23.1.0
+#     repository: https://prometheus-community.github.io/helm-charts
 
-  - name: jenkins
-    version: 4.4.1
-    repository: https://charts.jenkins.io
+#   - name: jenkins
+#     version: 4.4.1
+#     repository: https://charts.jenkins.io
 
-  - name: argo-cd
-    version: 5.41.1
-    repository:  https://argoproj.github.io/argo-helm
+#   - name: argo-cd
+#     version: 5.41.1
+#     repository:  https://argoproj.github.io/argo-helm
 
