@@ -89,4 +89,6 @@ namespaces:
   - staging
   - db
 
-app_name: phonebook
+app-name: phonebook
+app_name_frontend: phonebook-frontend
+app_name_backend: phonebook-backend

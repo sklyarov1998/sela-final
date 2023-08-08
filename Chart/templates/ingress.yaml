@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: phonebook-ingress
+  labels:
+    type: ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /contacts
+            pathType: Prefix
+            backend:
+              service:
+                name: phonebook-backend-lb
+                port:
+                  number: 1000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: phonebook-frontend-lb
+                port:
+                  number: 2000

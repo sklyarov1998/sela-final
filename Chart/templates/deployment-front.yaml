@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app_name_frontend }}-deployment
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: {{ .Values.app_name_frontend }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.app_name_frontend }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app_name_frontend }}
+    spec:
+      containers:
+        - name: {{ .Values.app_name_frontend }}
+          image: dasklyarov/phonebook-front:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app_name_frontend }}-lb
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 2000 
+      targetPort: 80
+  selector:
+    app: {{ .Values.app_name_frontend }}

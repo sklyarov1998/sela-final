@@ -1,22 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.app_name }}-deployment
+  name: {{ .Values.app_name_backend }}-deployment
+  namespace: {{ .Release.Namespace | quote }}
   labels:
-    app: {{ .Values.app_name }}
+    app: {{ .Values.app_name_backend }}
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: {{ .Values.app_name }}
+      app: {{ .Values.app_name_backend }}
   template:
     metadata:
       labels:
-        app: {{ .Values.app_name }}
+        app: {{ .Values.app_name_backend }}
     spec:
       containers:
-        - name: {{ .Values.app_name }}-app
-          image: shaharnadler/{{ .Values.app_name }}:latest
+        - name: {{ .Values.app_name_backend }}
+          image: shaharnadler/phonebook:0.50
           ports:
             - containerPort: 5000
           env:
@@ -30,7 +31,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.app_name }}-lb
+  name: {{ .Values.app_name_backend }}-lb
+  namespace: {{ .Release.Namespace | quote }}
 spec:
   type: LoadBalancer
   ports:
@@ -38,4 +40,4 @@ spec:
       port: 1000
       targetPort: 5000
   selector:
-    app: {{ .Values.app_name }}
+    app: {{ .Values.app_name_backend }}
