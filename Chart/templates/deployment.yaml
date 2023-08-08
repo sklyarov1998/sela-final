@@ -1,26 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: phonebook-deployment
+  name: {{ .Values.app_name }}-deployment
   labels:
-    app: phonebook
+    app: {{ .Values.app_name }}
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: phonebook
+      app: {{ .Values.app_name }}
   template:
     metadata:
       labels:
-        app: phonebook
-
+        app: {{ .Values.app_name }}
     spec:
       containers:
-        - name: phonebook-app
-          image: shaharnadler/phonebook:0.50
+        - name: {{ .Values.app_name }}-app
+          image: shaharnadler/{{ .Values.app_name }}:0.50
           ports:
             - containerPort: 5000
-
           env:
             - name: GCP_DB_PASSWORD
               valueFrom:
@@ -32,7 +30,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: phonebook-lb
+  name: {{ .Values.app_name }}-lb
 spec:
   type: LoadBalancer
   ports:
@@ -40,4 +38,4 @@ spec:
       port: 1000
       targetPort: 5000
   selector:
-    app: phonebook
+    app: {{ .Values.app_name }}

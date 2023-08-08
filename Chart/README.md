@@ -23,3 +23,11 @@ kubectl apply -f db-secret.yaml
 kubectl create secret generic db-secret --from-literal=db-password="enterYourDBPasswordHere"
 
 ```
+
+## Make SURE to supply the secret to dev and prod namespaces running:
+
+```
+kubectl apply -f db-secret.yaml --namespace=dev
+
+kubectl apply -f db-secret.yaml --namespace=prod
+```
